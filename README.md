@@ -7,7 +7,7 @@ A Leiningen plugin automatically update projects that depend on a common project
 In `:plugins` in your `project.clj`:
 
 ```clojure
-[lonocloud/lein-unison "0.1.0"]
+[lonocloud/lein-unison "0.1.1"]
 ```
 
 Also in your `project.clj`, name each of the project's that depends on this project:

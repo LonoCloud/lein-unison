@@ -22,16 +22,18 @@
 
 (defn git [dir & args]
   (let [prefix ["git" "--git-dir" (str dir "/.git") "--work-tree" dir]]
-    (apply sh (concat prefix args))))
+    (apply sh (vec (concat prefix args)))))
 
-(defn clone-and-pull [git-uri]
+(defn clone-and-pull [git-uri branch]
   (let [dir (repo-dir git-uri)
         r-name (repo-name git-uri)]
     (if (.isDirectory (file dir))
       (do (println (format "Local repository for %s already exists. Pulling..." r-name))
-          (git dir "pull"))
+          (git dir "checkout" branch)
+          (sh "git" "-C" dir "pull" "origin" branch))
       (do (println (format "Local repository for %s doesn't exist. Cloning..." r-name))
-          (git dir "clone" git-uri dir)))))
+          ;; Clone does not take -C, run without the `git` function.
+          (sh "git" "clone" git-uri dir)))))
 
 (defn commit-message [dep ver]
   (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-traffic-control." dep ver))
@@ -44,12 +46,12 @@
           (doseq [r (:repos (:unison project))]
             (println)
             (println (format "Updating repo %s ..." (:git r)))
-            (let [repo (clone-and-pull (:git r))
-                  branch (or (:branch r) "master")
+            (let [branch (or (:branch r) "master")
                   dir (repo-dir (:git r))
                   prj-name (full-project-name)
                   version (voom-version project)
                   msg (commit-message prj-name version)]
+              (clone-and-pull (:git r) branch)
               (println (format "Checking out branch: %s" branch))
               (git dir "checkout" branch)
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
