@@ -1,21 +1,43 @@
 # lein-unison
 
-A Leiningen plugin to do many wonderful things.
+A Leiningen plugin automatically update projects that depend on a common project.
 
 ## Usage
 
-FIXME: Use this for user-level plugins:
+In `:plugins` in your `project.clj`:
 
-Put `[thneed "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your `:user`
-profile.
+```clojure
+[lonocloud/lein-unison "0.1.0"]
+```
 
-FIXME: Use this for project-level plugins:
+Also in your `project.clj`, name each of the project's that depends on this project:
 
-Put `[thneed "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your project.clj.
+```clojure
+(defproject my/cool-project "0.1.0-SNAPSHOT"
+  ;;; ... Project stuff ...
+  :unison
+  {:repos
+   [{:git "git@github.com:my-org/dependent-a.git" :branch "compatability"}
+    {:git "git@github.com:my-org/dependent-b.git" :branch "master"}
+    {:git "git@github.com:my-org/dependent-c.git" :branch "develop"}]}
+  ;;; ... Project stuff ...
+)
+```
 
-FIXME: and add an example usage that actually makes sense:
+Now run:
 
-    $ lein thneed
+```
+$ lein unison update-projects
+```
+
+For each repository in `:repos`, lein-unison will run through a series of
+Git commands. Let's take "dependent-a", for example. lein-unison will:
+
+- Clone `"git@github.com:my-org/dependent-a.git"` over SSH and checkout branch `"compatibility"`.
+- Update `dependent-a`'s dependency on `my/cool-project` to the current local Voom version for `my/cool-project`.
+- Stage this change int he `dependent-a` repository.
+- Commit to `dependent-a` with a message indicating the change.
+- Push the change.
 
 ## License
 
