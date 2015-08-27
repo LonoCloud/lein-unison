@@ -2,6 +2,14 @@
 
 A Leiningen plugin automatically update projects that depend on a common project.
 
+Use this if:
+
+- You have multiple Leiningen projects in separate repositories.
+- You are using [Voom](https://github.com/LonoCloud/lein-voom) versioning on your Leiningen projects
+- You have read and write access to all said repositories.
+- Your Leiningen projects depend on one-another.
+- You want parity across your builds. That is, if you have repo A, which depends on repo B, each time you make a change to B, you would like a build triggered with A's dependency updated with *exactly* the changes made to B - nothing more, nothing less.
+
 ## Usage
 
 In `:plugins` in your `project.clj`:
