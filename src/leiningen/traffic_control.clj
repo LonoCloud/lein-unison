@@ -41,7 +41,7 @@
   [project subtask-name & args]
   (cond (= subtask-name "update-projects")
         (let [version (voom-version project)]
-          (doseq [r (:repos (:thneed project))]
+          (doseq [r (:repos (:unison project))]
             (println)
             (println (format "Updating repo %s ..." (:git r)))
             (let [repo (clone-and-pull (:git r))
