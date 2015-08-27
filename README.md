@@ -1,6 +1,6 @@
 # lein-unison
 
-A Leiningen plugin automatically update projects that depend on a common project.
+A Leiningen plugin to automatically update projects that depend on a common project.
 
 Use this if:
 
@@ -8,7 +8,7 @@ Use this if:
 - You are using [Voom](https://github.com/LonoCloud/lein-voom) versioning on your Leiningen projects
 - You have read and write access to all said repositories.
 - Your Leiningen projects depend on one-another.
-- You want parity across your builds. That is, if you have repo A, which depends on repo B, each time you make a change to B, you would like a build triggered with A's dependency updated with *exactly* the changes made to B - nothing more, nothing less.
+- You want parity across your builds. That is, if you have repo A, which depends on repo B, each time you make a change to B, you would like a build triggered on repo A with A's dependency updated with *exactly* the changes made to B - nothing more, nothing less.
 
 ## Usage
 
@@ -39,11 +39,11 @@ $ lein unison update-projects
 ```
 
 For each repository in `:repos`, lein-unison will run through a series of
-Git commands. Let's take "dependent-a", for example. lein-unison will:
+Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
 
 - Clone `"git@github.com:my-org/dependent-a.git"` over SSH and checkout branch `"compatibility"`.
 - Update `dependent-a`'s dependency on `my/cool-project` to the current local Voom version for `my/cool-project`.
-- Stage this change int he `dependent-a` repository.
+- Stage this change in the `dependent-a` repository.
 - Commit to `dependent-a` with a message indicating the change.
 - Push the change.
 
