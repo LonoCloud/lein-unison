@@ -9,7 +9,9 @@
   (str (z/sexpr (z/right (z/down (z/of-file "project.clj"))))))
 
 (defn voom-version [project]
-  (read-string (with-out-str (apply v/wrap project "pprint" [":version"]))))
+  (if (re-matches #".+-SNAPSHOT" (:version project))
+    (read-string (with-out-str (apply v/wrap project "pprint" [":version"])))
+    (:version project)))
 
 (defn organization [git-uri]
   (last (re-find #".+:(.+)/.+.git" git-uri)))
