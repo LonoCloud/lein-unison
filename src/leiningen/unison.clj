@@ -41,7 +41,7 @@
           (sh "git" "clone" git-uri dir)))))
 
 (defn update-commit-message [dep ver]
-  (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-traffic-control." dep ver))
+  (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-unison." dep ver))
 
 (defn unison
   "Update dependencies of projects who depend on me."
