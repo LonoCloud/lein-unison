@@ -8,10 +8,13 @@
 (defn full-project-name []
   (str (z/sexpr (z/right (z/down (z/of-file "project.clj"))))))
 
+(defn release-version? [project]
+  (not (re-matches #".+-SNAPSHOT" (:version project))))
+
 (defn voom-version [project]
-  (if (re-matches #".+-SNAPSHOT" (:version project))
-    (read-string (with-out-str (apply v/wrap project "pprint" [":version"])))
-    (:version project)))
+  (if (release-version? project)
+    (:version project)
+    (read-string (with-out-str (apply v/wrap project "pprint" [":version"])))))
 
 (defn organization [git-uri]
   (last (re-find #".+:(.+)/.+.git" git-uri)))
@@ -37,7 +40,7 @@
           ;; Clone does not take -C, run without the `git` function.
           (sh "git" "clone" git-uri dir)))))
 
-(defn commit-message [dep ver]
+(defn update-commit-message [dep ver]
   (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-traffic-control." dep ver))
 
 (defn unison
@@ -51,8 +54,7 @@
             (let [branch (or (:branch r) "master")
                   dir (repo-dir (:git r))
                   prj-name (full-project-name)
-                  version (voom-version project)
-                  msg (commit-message prj-name version)]
+                  msg (update-commit-message prj-name version)]
               (clone-and-pull (:git r) branch)
               (println (format "Checking out branch: %s" branch))
               (git dir "checkout" branch)
@@ -63,6 +65,23 @@
               (println "Pushing...")
               (git dir "push" "origin" branch)
               (println "Done."))))
+
+        (= subtask-name "release-projects")
+        (if (not (release-version? project))
+          (println "Subtask release-projects is only available for release versions. Please remove -SNAPSHOT from your project version and try again.")
+          (let [artifact-branch (first args)
+                version (voom-version project)]
+            (doseq [r (:repos (:unison project))]
+              (println)
+              (println (format "Releasing repo %s ..." (:git r)))
+              (let [branch (or (:branch r) "master")
+                    dir (repo-dir (:git r))]
+                (clone-and-pull (:git r) branch)
+                (println (format "Checking out branch: %s" branch))
+                (git dir "checkout" branch)
+                (println "Executing release script...")
+                (sh "cd" dir "&&" "sh" (:release-script r) version artifact-branch)
+                (println "Done.")))))
 
         :else
         (println (format "Subtask %s not found, exiting." subtask-name))))

@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj`:
 
 ```clojure
-[lonocloud/lein-unison "0.1.2"]
+[lonocloud/lein-unison "0.1.3"]
 ```
 
 Also in your `project.clj`, name each of the project's that depends on this project:
@@ -25,14 +25,20 @@ Also in your `project.clj`, name each of the project's that depends on this proj
   ;;; ... Project stuff ...
   :unison
   {:repos
-   [{:git "git@github.com:my-org/dependent-a.git" :branch "compatability"}
-    {:git "git@github.com:my-org/dependent-b.git" :branch "master"}
-    {:git "git@github.com:my-org/dependent-c.git" :branch "develop"}]}
+   [{:git "git@github.com:my-org/dependent-a.git"
+     :release-script "script/release.sh"
+     :branch "compatability"}
+    {:git "git@github.com:my-org/dependent-b.git"
+     :release-script "bin/release-the-project.sh"
+     :branch "master"}
+    {:git "git@github.com:my-org/dependent-c.git"
+     :release-script "script/release.sh"
+     :branch "develop"}]}
   ;;; ... Project stuff ...
 )
 ```
 
-Now run:
+When your main project ends in `"SNAPSHOT"`, run:
 
 ```
 $ lein unison update-projects
@@ -46,6 +52,19 @@ Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
 - Stage this change in the `dependent-a` repository.
 - Commit to `dependent-a` with a message indicating the change.
 - Push the change.
+
+When your main projects doesn't end in `"SNAPSHOT"`, it is a release, so run:
+
+```
+$ lein unison release-projects <release-branch>
+```
+
+This command takes a branch name to store release commits in.
+For each repository in `:repos`, lein-unison will run through a series of
+Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
+
+- Clone `"git@github.com:my-org/dependent-a.git"` over SSH and checkout branch `"compatibility"`.
+- Execute the `:release-script` file from `dependent-a`'s project root, passing it this project's version and the release-branch as arguments.
 
 ## License
 
