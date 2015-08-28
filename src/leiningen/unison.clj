@@ -80,7 +80,7 @@
                 (println (format "Checking out branch: %s" branch))
                 (git dir "checkout" branch)
                 (println "Executing release script...")
-                (sh "cd" dir "&&" "sh" (:release-script r) version artifact-branch)
+                (sh (str dir "/" (:release-script r)) version artifact-branch)
                 (println "Done.")))))
 
         :else
