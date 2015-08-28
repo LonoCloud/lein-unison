@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj`:
 
 ```clojure
-[lonocloud/lein-unison "0.1.3"]
+[lonocloud/lein-unison "0.1.4"]
 ```
 
 Also in your `project.clj`, name each of the project's that depends on this project:
