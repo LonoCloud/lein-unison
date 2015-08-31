@@ -40,6 +40,11 @@
           ;; Clone does not take -C, run without the `git` function.
           (sh "git" "clone" git-uri dir)))))
 
+(defn project-path [repo dir]
+  (if-let [p (:project-file repo)]
+    (str dir "/" p)
+    (str dir "/project.clj")))
+
 (defn update-commit-message [dep ver]
   (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-unison." dep ver))
 
