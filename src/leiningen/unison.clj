@@ -64,7 +64,7 @@
               (println (format "Checking out branch: %s" branch))
               (git dir "checkout" branch)
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
-              (d/update-dependency nil prj-name version (str dir "/project.clj"))
+              (d/update-dependency nil prj-name version (project-path r dir))
               (println "Commiting changes...")
               (git dir "commit" "-am" msg)
               (println "Pushing...")
