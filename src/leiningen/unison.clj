@@ -94,4 +94,4 @@
                 (println "Done.")))))
 
         :else
-        (println (format "Subtask %s not found, exiting." subtask-name))))
+        (println (format "Subtask %s not found, must be either update-projects or release-projects. Exiting." subtask-name))))

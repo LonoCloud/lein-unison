@@ -12,13 +12,13 @@ Use this if:
 
 ## Usage
 
-In `:plugins` in your `project.clj`:
+In `:plugins` in your `project.clj` for the project which you want to push updates *from*:
 
 ```clojure
 [lonocloud/lein-unison "0.1.5"]
 ```
 
-Also in your `project.clj`, name each of the project's that depends on this project:
+Also in your `project.clj`, name each project that depends on this project:
 
 ```clojure
 (defproject my/cool-project "0.1.0-SNAPSHOT"
@@ -29,14 +29,20 @@ Also in your `project.clj`, name each of the project's that depends on this proj
      :release-script "script/release.sh"
      :branch "compatability"}
     {:git "git@github.com:my-org/dependent-b.git"
+     :project-file "subproject-x/project.clj"
      :release-script "bin/release-the-project.sh"
      :branch "master"}
-    {:git "git@github.com:my-org/dependent-c.git"
+    {:git "git@github.com:my-org/dependent-b.git"
+     :project-file "subproject-y/project.clj"
      :release-script "script/release.sh"
      :branch "develop"}]}
   ;;; ... Project stuff ...
 )
 ```
+
+Notice that you can specify the same repository twice. Use `:project-file` to point to a `project.clj` file nested inside a repository.
+
+### Snapshot release
 
 When your main project ends in `"SNAPSHOT"`, run:
 
@@ -52,6 +58,8 @@ Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
 - Stage this change in the `dependent-a` repository.
 - Commit to `dependent-a` with a message indicating the change.
 - Push the change.
+
+### Stable release
 
 When your main projects doesn't end in `"SNAPSHOT"`, it is a release, so run:
 
