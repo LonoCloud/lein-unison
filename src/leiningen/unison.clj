@@ -27,8 +27,9 @@
 
 (defn run-sh [& args]
   (let [rets (apply sh args)]
-    (if (seq (:err rets))
-      (throw (ex-info "System call failed" {:args args :err (:err rets)})))))
+    (when (seq (:err rets))
+      (println (:err rets)))
+    rets))
 
 (defn git [dir & args]
   (let [prefix ["git" "--git-dir" (str dir "/.git") "--work-tree" dir]]
