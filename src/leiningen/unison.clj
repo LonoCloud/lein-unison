@@ -25,9 +25,14 @@
 (defn repo-dir [git-uri]
   (format "target/%s/%s" (organization git-uri) (repo-name git-uri)))
 
+(defn run-sh [& args]
+  (let [rets (apply sh args)]
+    (if (seq (:err rets))
+      (throw (ex-info "System call failed" {:args args :err (:err rets)})))))
+
 (defn git [dir & args]
   (let [prefix ["git" "--git-dir" (str dir "/.git") "--work-tree" dir]]
-    (apply sh (vec (concat prefix args)))))
+    (apply run-sh (vec (concat prefix args)))))
 
 (defn clone-and-pull [git-uri branch]
   (let [dir (repo-dir git-uri)
@@ -35,10 +40,10 @@
     (if (.isDirectory (file dir))
       (do (println (format "Local repository for %s already exists. Pulling..." r-name))
           (git dir "checkout" branch)
-          (sh "git" "-C" dir "pull" "origin" branch))
+          (run-sh "git" "-C" dir "pull" "origin" branch))
       (do (println (format "Local repository for %s doesn't exist. Cloning..." r-name))
           ;; Clone does not take -C, run without the `git` function.
-          (sh "git" "clone" git-uri dir)))))
+          (run-sh "git" "clone" git-uri dir)))))
 
 (defn project-path [repo dir]
   (if-let [p (:project-file repo)]
@@ -85,7 +90,7 @@
                 (println (format "Checking out branch: %s" branch))
                 (git dir "checkout" branch)
                 (println "Executing release script...")
-                (sh (str dir "/" (:release-script r)) version artifact-branch)
+                (run-sh (str dir "/" (:release-script r)) version artifact-branch)
                 (println "Done.")))))
 
         :else

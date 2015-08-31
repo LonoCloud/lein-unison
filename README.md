@@ -1,11 +1,11 @@
 # lein-unison
 
-A Leiningen plugin to automatically update projects that depend on a common project.
+A Leiningen plugin to push updates to projects that depend on a common project.
 
 Use this if:
 
-- You have multiple Leiningen projects in separate repositories.
-- You are using [Voom](https://github.com/LonoCloud/lein-voom) versioning on your Leiningen projects
+- You have multiple Leiningen projects, either in separate or the same Git repository.
+- You are using [Voom](https://github.com/LonoCloud/lein-voom) versioning on your Leiningen projects.
 - You have read and write access to all said repositories.
 - Your Leiningen projects depend on one-another.
 - You want parity across your builds. That is, if you have repo A, which depends on repo B, each time you make a change to B, you would like a build triggered on repo A with A's dependency updated with *exactly* the changes made to B - nothing more, nothing less.
@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj`:
 
 ```clojure
-[lonocloud/lein-unison "0.1.4"]
+[lonocloud/lein-unison "0.1.5"]
 ```
 
 Also in your `project.clj`, name each of the project's that depends on this project:
