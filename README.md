@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj` for the project which you want to push updates *from*:
 
 ```clojure
-[lonocloud/lein-unison "0.1.6"]
+[lonocloud/lein-unison "0.1.7"]
 ```
 
 Also in your `project.clj`, name each project that depends on this project:
@@ -31,7 +31,8 @@ Also in your `project.clj`, name each project that depends on this project:
     {:git "git@github.com:my-org/dependent-b.git"
      :project-file "subproject-x/project.clj"
      :release-script "bin/release-the-project.sh"
-     :branch "master"}
+     :branch "master"
+     :merge "develop"}
     {:git "git@github.com:my-org/dependent-b.git"
      :project-file "subproject-y/project.clj"
      :release-script "script/release.sh"
@@ -58,6 +59,8 @@ Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
 - Stage this change in the `dependent-a` repository.
 - Commit to `dependent-a` with a message indicating the change.
 - Push the change.
+
+You can also specify `:merge`, which points to a branch. Before updating the dependency on branch `:branch`, `:merge` will be merged into `:branch`.
 
 ### Stable release
 

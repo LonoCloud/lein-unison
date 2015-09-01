@@ -67,8 +67,20 @@
                   prj-name (full-project-name)
                   msg (update-commit-message prj-name version)]
               (clone-and-pull (:git r) branch)
+
+              (when (:merge r)
+                (println (format "Checking out branch: %s" (:merge r)))
+                (git dir "checkout" branch)
+                (git dir "pull" "origin" (:merge r)))
+
               (println (format "Checking out branch: %s" branch))
               (git dir "checkout" branch)
+              (git dir "pull" "origin" branch)
+
+              (when (:merge r)
+                (println (format "Merging %s into %s" (:merge r) branch))
+                (git dir "merge" (:merge r)))
+
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
               (d/update-dependency nil prj-name version (project-path r dir))
               (println "Commiting changes...")
