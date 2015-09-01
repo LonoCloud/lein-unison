@@ -32,7 +32,7 @@
     rets))
 
 (defn git [dir & args]
-  (let [prefix ["git" "--git-dir" (str dir "/.git") "--work-tree" dir]]
+  (let [prefix ["git" "-C" dir]]
     (apply run-sh (vec (concat prefix args)))))
 
 (defn clone-and-pull [git-uri branch]
@@ -41,7 +41,7 @@
     (if (.isDirectory (file dir))
       (do (println (format "Local repository for %s already exists. Pulling..." r-name))
           (git dir "checkout" branch)
-          (run-sh "git" "-C" dir "pull" "origin" branch))
+          (run-sh "git" "-C" dir "pull" "--all"))
       (do (println (format "Local repository for %s doesn't exist. Cloning..." r-name))
           ;; Clone does not take -C, run without the `git` function.
           (run-sh "git" "clone" git-uri dir)))))
@@ -70,7 +70,7 @@
 
               (when (:merge r)
                 (println (format "Checking out branch: %s" (:merge r)))
-                (git dir "checkout" branch)
+                (git dir "checkout" (:merge r))
                 (git dir "pull" "origin" (:merge r)))
 
               (println (format "Checking out branch: %s" branch))

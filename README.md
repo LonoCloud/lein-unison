@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj` for the project which you want to push updates *from*:
 
 ```clojure
-[lonocloud/lein-unison "0.1.7"]
+[lonocloud/lein-unison "0.1.8"]
 ```
 
 Also in your `project.clj`, name each project that depends on this project:
