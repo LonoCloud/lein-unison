@@ -97,7 +97,7 @@
             (doseq [r (:repos (:unison project))]
               (println)
               (println (format "Releasing repo %s ..." (:git r)))
-              (let [branch (or (:branch r) "master")
+              (let [branch (or (:release-branch r) "master")
                     dir (repo-dir (:git r))]
                 (clone-and-pull (:git r) branch)
                 (println (format "Checking out branch: %s" branch))

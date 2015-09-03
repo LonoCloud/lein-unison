@@ -15,7 +15,7 @@ Use this if:
 In `:plugins` in your `project.clj` for the project which you want to push updates *from*:
 
 ```clojure
-[lonocloud/lein-unison "0.1.8"]
+[lonocloud/lein-unison "0.1.9"]
 ```
 
 Also in your `project.clj`, name each project that depends on this project:
@@ -27,7 +27,8 @@ Also in your `project.clj`, name each project that depends on this project:
   {:repos
    [{:git "git@github.com:my-org/dependent-a.git"
      :release-script "script/release.sh"
-     :branch "compatability"}
+     :branch "compatability"
+     :release-branch "master"}
     {:git "git@github.com:my-org/dependent-b.git"
      :project-file "subproject-x/project.clj"
      :release-script "bin/release-the-project.sh"
@@ -74,7 +75,7 @@ This command takes a branch name to store release commits in.
 For each repository in `:repos`, lein-unison will run through a series of
 Git commands. Let's take `"dependent-a"`, for example. lein-unison will:
 
-- Clone `"git@github.com:my-org/dependent-a.git"` over SSH and checkout branch `"compatibility"`.
+- Clone `"git@github.com:my-org/dependent-a.git"` over SSH and checkout branch `"master"` (`:release-branch`).
 - Execute the `:release-script` file from `dependent-a`'s project root, passing it this project's version and the release-branch as arguments.
 
 ## License
