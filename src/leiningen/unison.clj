@@ -16,14 +16,12 @@
     (:version project)
     (read-string (with-out-str (apply v/wrap project "pprint" [":version"])))))
 
-(defn organization [git-uri]
-  (last (re-find #".+:(.+)/.+.git" git-uri)))
-
 (defn repo-name [git-uri]
-  (last (re-find #".+/(.+).git" git-uri)))
+  (or (last (re-find #".+/(.+).git" git-uri))
+      (last (re-find #".+/(.+)" git-uri))))
 
 (defn repo-dir [git-uri]
-  (format "target/%s/%s" (organization git-uri) (repo-name git-uri)))
+  (format "target/%s" (repo-name git-uri)))
 
 (defn run-sh [& args]
   (let [rets (apply sh args)]
