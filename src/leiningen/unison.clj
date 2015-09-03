@@ -79,7 +79,7 @@
 
               (when (:merge r)
                 (println (format "Merging %s into %s" (:merge r) branch))
-                (git dir "merge" (:merge r)))
+                (git dir "merge" (:merge r) "-X" "theirs"))
 
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
               (d/update-dependency nil prj-name version (project-path r dir))
