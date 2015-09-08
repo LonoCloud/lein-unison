@@ -2,6 +2,11 @@
   (:require [clojure.java.shell :refer [sh]]
             [rewrite-clj.zip :as z]))
 
+(defn commit-repo [r]
+  (println (format "[%s] Making the first commit..." r))
+  (sh "git" "-C" (str "target/" r) "add" ".")
+  (sh "git" "-C" (str "target/" r) "commit" "-m" "Automatic commit."))
+
 (defn initialize-repo [repo-name]
   (println (format "[%s] Clearing away old files..." repo-name))
   (sh "rm" "-rf" (str "target/" repo-name))
@@ -12,15 +17,13 @@
   (sh "git" "-C" "target" "init" "--bare" (str repo-name ".git"))
 
   (println (format "[%s] Building a new Leiningen project..." repo-name))
-  (sh "lein" "new" repo-name "--to-dir" (str "target/" repo-name))
+  (sh "lein" "new" (str repo-name "/" repo-name) "--to-dir" (str "target/" repo-name))
 
   (println (format "[%s] Adding local Git push/pull paths..." repo-name))
   (sh "git" "-C" "target" "init" repo-name)
   (sh "git" "-C" (str "target/" repo-name) "remote" "add" "origin" (str "../" repo-name ".git"))
 
-  (println (format "[%s] Making the first commit..." repo-name))
-  (sh "git" "-C" (str "target/" repo-name) "add" ".")
-  (sh "git" "-C" (str "target/" repo-name) "commit" "-m" "Initial commit."))
+  (commit-repo repo-name))
 
 (defn depend-on-project [leader follower]
   (println (format "[%s] Adding dependency on project %s..." follower leader))
@@ -29,8 +32,8 @@
             (z/find-value z/next 'defproject)
             (z/find-value :dependencies)
             z/right
-            (z/append-child ^{:voom {:repo (str "target/" leader ".git") :branch "master"}}
-                            [(symbol leader) "0.1.0-SNAPSHOT"])
+            (z/append-child ^{:voom {:repo (str "../" leader) :branch "master"}}
+                            [(symbol (str leader "/" leader)) "0.1.0-SNAPSHOT"])
             z/root
             ((fn [x] (spit f-name x))))))
 
@@ -65,9 +68,11 @@
   (println "Building new repository set...")
   (initialize-repo leader)
   (add-unison-to-project leader followers)
+  (commit-repo leader)
   (doseq [f followers]
     (initialize-repo f)
-    (depend-on-project leader f))
+    (depend-on-project leader f)
+    (commit-repo f))
   (println "Done"))
 
 (initialize-repos "a" ["b"])
