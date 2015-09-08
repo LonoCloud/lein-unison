@@ -29,8 +29,8 @@
             (z/find-value z/next 'defproject)
             (z/find-value :dependencies)
             z/right
-            (z/append-child ^{:voom {:repo (str "target/" leader ".git") :branch "master"}})
-            (z/append-child [(symbol leader) "0.1.0-SNAPSHOT"])
+            (z/append-child ^{:voom {:repo (str "target/" leader ".git") :branch "master"}}
+                            [(symbol leader) "0.1.0-SNAPSHOT"])
             z/root
             ((fn [x] (spit f-name x))))))
 
