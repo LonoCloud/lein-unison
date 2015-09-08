@@ -29,11 +29,24 @@
             z/root
             ((fn [x] (spit f-name x))))))
 
+(defn add-unison-to-project [leader followers]
+  (let [f-name (str "target/" leader "/project.clj")
+        deps (mapv (fn [d] {:git (format "target/%s.git" d)}) followers)]
+    (some-> (z/of-file f-name)
+            (z/find-value z/next 'defproject)
+            z/rightmost
+            (z/insert-right :unison)
+            z/rightmost
+            (z/insert-right {:repos deps})
+            z/root
+            ((fn [x] (spit f-name x))))))
+
 (defn initialize-repos [leader followers]
   (initialize-repo leader)
+  (add-unison-to-project leader followers)
   (doseq [f followers]
     (initialize-repo f)
     (depend-on-project leader f))
   (println "Done"))
 
-#_(initialize-repos "a" ["b" "c" "d"])
+(initialize-repos "a" ["b"])
