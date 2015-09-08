@@ -42,6 +42,7 @@
 
             (z/find-value z/next :plugins)
             (z/prepend-newline)
+            (z/prepend-space 2)
 
             z/rightmost
             (z/insert-right :unison)
@@ -50,6 +51,7 @@
 
             (z/find-value z/next :unison)
             (z/prepend-newline)
+            (z/prepend-space 2)
 
             z/root
             ((fn [x] (spit f-name x))))))
