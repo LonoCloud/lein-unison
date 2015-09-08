@@ -16,7 +16,11 @@
 
   (println (format "[%s] Adding local Git push/pull paths..." repo-name))
   (sh "git" "-C" "target" "init" repo-name)
-  (sh "git" "-C" (str "target/" repo-name) "remote" "add" "origin" (str "../" repo-name ".git")))
+  (sh "git" "-C" (str "target/" repo-name) "remote" "add" "origin" (str "../" repo-name ".git"))
+
+  (println (format "[%s] Making the first commit..." repo-name))
+  (sh "git" "-C" (str "target/" repo-name) "add" ".")
+  (sh "git" "-C" (str "target/" repo-name) "commit" "-m" "Initial commit."))
 
 (defn depend-on-project [leader follower]
   (println (format "[%s] Adding dependency on project %s..." follower leader))
@@ -25,6 +29,7 @@
             (z/find-value z/next 'defproject)
             (z/find-value :dependencies)
             z/right
+            (z/append-child ^{:voom {:repo (str "target/" leader ".git") :branch "master"}})
             (z/append-child [(symbol leader) "0.1.0-SNAPSHOT"])
             z/root
             ((fn [x] (spit f-name x))))))
