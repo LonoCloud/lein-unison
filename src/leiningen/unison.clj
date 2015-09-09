@@ -42,7 +42,11 @@
           (run-sh "git" "-C" dir "pull" "--all"))
       (do (println (format "Local repository for %s doesn't exist. Cloning..." r-name))
           ;; Clone does not take -C, run without the `git` function.
-          (run-sh "git" "clone" git-uri dir)))))
+          (run-sh "git" "clone" git-uri dir)
+          (when-not (.endsWith git-uri ".git")
+            (println "Local repository detected. Switching remote origin...")
+            (git dir "remote" "remove" "origin")
+            (git dir "remote" "add" "origin" (str git-uri ".git")))))))
 
 (defn project-path [repo dir]
   (if-let [p (:project-file repo)]

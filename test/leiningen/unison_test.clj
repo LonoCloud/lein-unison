@@ -39,7 +39,7 @@
 
 (defn add-unison-to-project [leader followers]
   (let [f-name (str "target/" leader "/project.clj")
-        deps (mapv (fn [d] {:git (format "target/%s.git" d)}) followers)]
+        deps (mapv (fn [d] {:git (format "%s/target/%s" (System/getProperty "user.dir") d)}) followers)]
     (some-> (z/of-file f-name)
             (z/find-value z/next 'defproject)
 
