@@ -1,5 +1,6 @@
 (ns leiningen.unison-test
-  (:require [clojure.java.shell :refer [sh]]
+  (:require [clojure.test :refer [deftest is]]
+            [clojure.java.shell :refer [sh]]
             [rewrite-clj.zip :as z]))
 
 (defn commit-repo [r]
@@ -64,6 +65,17 @@
             z/root
             ((fn [x] (spit f-name x))))))
 
+(defn dep-version [repo]
+  (last
+   (last
+    (some-> (z/of-file (format "target/%s/project.clj" repo))
+            (z/find-value z/next :dependencies)
+            z/right
+            z/sexpr))))
+
+(defn voom-dep [repo]
+  (last (re-find #"\-g(.*)" (dep-version repo))))
+
 (defn initialize-repos [leader followers]
   (println "Building new repository set...")
   (initialize-repo leader)
@@ -75,4 +87,9 @@
     (commit-repo f))
   (println "Done"))
 
-(initialize-repos "a" ["b"])
+(deftest test-update-projects
+  (initialize-repos "a" ["b"])
+  (is (= "0.1.0-SNAPSHOT" (dep-version "b"))
+      "Initial dependency of B should be a snapshot, not a Voom version."))
+
+(test-update-projects)
