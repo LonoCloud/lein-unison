@@ -41,6 +41,8 @@
 (defn add-unison-to-project [leader followers]
   (let [f-name (str "target/" leader "/project.clj")
         deps (mapv (fn [d] {:git (format "%s/target/%s" (System/getProperty "user.dir") d)}) followers)]
+    (spit (format "target/%s/run-unison.sh" leader) "cd \"$(dirname \"$0\")\" && lein unison update-projects")
+    (sh "chmod" "+x" (format "target/%s/run-unison.sh" leader))
     (some-> (z/of-file f-name)
             (z/find-value z/next 'defproject)
 
@@ -89,7 +91,9 @@
 
 (deftest test-update-projects
   (initialize-repos "a" ["b"])
-  (is (= "0.1.0-SNAPSHOT" (dep-version "b"))
-      "Initial dependency of B should be a snapshot, not a Voom version."))
-
-(test-update-projects)
+  (is (= "0.1.0-SNAPSHOT" (dep-version "b")))
+  (sh "target/a/run-unison.sh")
+  (sh "git" "-C" "target/b" "pull" "origin" "master")
+  (let [main-version (.trim (:out (sh "git" "-C" "target/a" "rev-parse" "--short" "HEAD")))
+        dep-version (voom-dep "b")]
+    (is (= main-version dep-version))))
