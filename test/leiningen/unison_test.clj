@@ -36,13 +36,20 @@
             (z/append-child ^{:voom {:repo (str "../" leader) :branch "master"}}
                             [(symbol (str leader "/" leader)) "0.1.0-SNAPSHOT"])
             z/root
-            ((fn [x] (spit f-name x))))))
+            ((fn [x] (spit f-name x))))
+    (spit (format "target/%s/release.sh" follower) "cd \"$(dirname \"$0\")\" && touch released.txt")
+    (sh "chmod" "+x" (format "target/%s/release.sh" follower))))
 
 (defn add-unison-to-project [leader followers]
   (let [f-name (str "target/" leader "/project.clj")
-        deps (mapv (fn [d] {:git (format "%s/target/%s" (System/getProperty "user.dir") d)}) followers)]
-    (spit (format "target/%s/run-unison.sh" leader) "cd \"$(dirname \"$0\")\" && lein unison update-projects")
-    (sh "chmod" "+x" (format "target/%s/run-unison.sh" leader))
+        deps (mapv (fn [d] {:git (format "%s/target/%s" (System/getProperty "user.dir") d)
+                           :release-script "release.sh"})
+                   followers)]
+    (spit (format "target/%s/run-update.sh" leader) "cd \"$(dirname \"$0\")\" && lein unison update-projects")
+    (spit (format "target/%s/run-release.sh" leader) "cd \"$(dirname \"$0\")\" && lein unison release-projects 0.1.0 0.1.x")
+
+    (sh "chmod" "+x" (format "target/%s/run-update.sh" leader))
+    (sh "chmod" "+x" (format "target/%s/run-release.sh" leader))
     (some-> (z/of-file f-name)
             (z/find-value z/next 'defproject)
 
@@ -78,6 +85,16 @@
 (defn voom-dep [repo]
   (last (re-find #"\-g(.*)" (dep-version repo))))
 
+(defn update-to-release [repo]
+  (let [f-name (format "target/%s/project.clj" repo)]
+    (some-> (z/of-file f-name)
+            (z/find-value z/next 'defproject)
+            z/next
+            z/next
+            (z/edit (constantly "0.1.0"))
+            z/root
+            ((fn [x] (spit f-name x))))))
+
 (defn initialize-repos [leader followers]
   (println "Building new repository set...")
   (initialize-repo leader)
@@ -92,8 +109,14 @@
 (deftest test-update-projects
   (initialize-repos "a" ["b"])
   (is (= "0.1.0-SNAPSHOT" (dep-version "b")))
-  (sh "target/a/run-unison.sh")
+  (sh "target/a/run-update.sh")
   (sh "git" "-C" "target/b" "pull" "origin" "master")
   (let [main-version (.trim (:out (sh "git" "-C" "target/a" "rev-parse" "--short" "HEAD")))
         dep-version (voom-dep "b")]
     (is (= main-version dep-version))))
+
+(deftest test-release-projects
+  (initialize-repos "a" ["b"])
+  (update-to-release "a")
+  (sh "target/a/run-release.sh")
+  (is (.exists (clojure.java.io/file "target/a/target/b/released.txt"))))
