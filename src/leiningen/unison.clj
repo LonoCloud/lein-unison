@@ -48,10 +48,16 @@
             (git dir "remote" "remove" "origin")
             (git dir "remote" "add" "origin" (str git-uri ".git")))))))
 
-(defn project-path [repo dir]
-  (if-let [p (:project-file repo)]
-    (str dir "/" p)
-    (str dir "/project.clj")))
+(defn project-paths [repo dir]
+  (cond (= :discover (:project-file repo))
+        (let [files (map str (file-seq (clojure.java.io/file dir)))]
+          (filter (fn [f] (.endsWith f "project.clj")) files))
+
+        (:project-file repo)
+        [(str dir "/" (:project-file repo))]
+
+        :else
+        [(str dir "/project.clj")]))
 
 (defn update-commit-message [dep ver]
   (format "Update dependency %s to version %s.\n\nAutomatic commit by lein-unison." dep ver))
@@ -84,7 +90,8 @@
                 (git dir "merge" (:merge r) "-X" "theirs"))
 
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
-              (d/update-dependency nil prj-name version (project-path r dir))
+              (let [project (project-paths r dir)]
+                (d/update-dependency nil prj-name version project))
               (println "Commiting changes...")
               (git dir "commit" "-am" msg)
               (println "Pushing...")

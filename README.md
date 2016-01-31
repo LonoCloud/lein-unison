@@ -42,7 +42,7 @@ Also in your `project.clj`, name each project that depends on this project:
 )
 ```
 
-Notice that you can specify the same repository twice. Use `:project-file` to point to a `project.clj` file nested inside a repository.
+Notice that you can specify the same repository twice. Use `:project-file` to point to a `project.clj` file nested inside a repository. You can also set `:project-file` to `:discover` to make this plugin search for and use all `project.clj` files recursively.
 
 ### Snapshot release
 
