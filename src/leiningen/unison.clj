@@ -90,7 +90,7 @@
                 (git dir "merge" (:merge r) "-X" "theirs"))
 
               (println (format "Updating %s's %s dependency to version %s" (repo-name (:git r)) prj-name version))
-              (let [project (project-paths r dir)]
+              (doseq [project (project-paths r dir)]
                 (d/update-dependency nil prj-name version project))
               (println "Commiting changes...")
               (git dir "commit" "-am" msg)
